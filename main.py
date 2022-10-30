@@ -1,8 +1,19 @@
-import asyncio, logging
+from tunnel_client import TunnelClient
+
+# from aiohttp import web
 
 
-def start():
-    reader, writer = asyncio.open_connection("127.0.0.1", "3000")
+# async def handle(request: web.Request):
+#     print("url:", request.url)
+#     web.Response("hello, world. I am under path:" + request.path)
 
-    with open("/cc") as file:
-        logging.getLogger().info
+
+# webapp = web.Application()
+# webapp.add_routes([web.get("/{tail:.*}", handle)])
+
+# web.run_app(webapp)
+
+client = TunnelClient("127.0.0.1", 7000)
+
+
+client.start()
