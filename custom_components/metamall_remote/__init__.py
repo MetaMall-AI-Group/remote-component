@@ -9,6 +9,7 @@ from homeassistant.helpers.start import async_at_start
 from homeassistant.const import EVENT_STATE_CHANGED
 from homeassistant.core import Event
 from .const import DOMAIN
+import threading
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigEntry):
@@ -28,12 +29,12 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
 
     hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
     
-    hass.async_add_executor_job(sync_areas(hass))
-    hass.async_add_executor_job(sync_devices(hass))
-    hass.async_add_executor_job(sync_states(hass))
+    threading.Thread(target=sync_areas, args=(hass)).start()
+    threading.Thread(target=sync_devices, args=(hass)).start()
+    threading.Thread(target=sync_states, args=(hass)).start()
     return True
 
-async def sync_devices(hass: HomeAssistant):
+def sync_devices(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
         logger.warn("Couldn't sync devices without token")
@@ -55,11 +56,11 @@ async def sync_devices(hass: HomeAssistant):
         })
     
     # sync devices
-    r = await hass.async_add_executor_job(requests.put('https://metamall.vatxx.com/api/ha-sync/devices?token=' + token, json=devices))
+    r = requests.put('https://metamall.vatxx.com/api/ha-sync/devices?token=' + token, json=devices)
     if r.status_code != 200:
         logger.warn(r.reason)
 
-async def sync_states(hass: HomeAssistant):
+def sync_states(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
         logger.warn("Couldn't sync states without token")
@@ -70,11 +71,11 @@ async def sync_states(hass: HomeAssistant):
         if filter_state(state.entity_id) == True:
             states.append(state.as_dict())
 
-    r = await hass.async_add_executor_job(requests.put('https://metamall.vatxx.com/api/ha-sync/states?token=' + token, json=states))
+    r = requests.put('https://metamall.vatxx.com/api/ha-sync/states?token=' + token, json=states)
     if r.status_code != 200:
         logger.warn(r.reason)
 
-async def sync_areas(hass: HomeAssistant):
+def sync_areas(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
         logger.warn("Couldn't sync areas without token")
@@ -90,7 +91,7 @@ async def sync_areas(hass: HomeAssistant):
             'picture': area.picture
         })
     
-    r = await hass.async_add_executor_job(requests.put('https://metamall.vatxx.com/api/ha-sync/areas?token=' + token, json=areas))
+    r = requests.put('https://metamall.vatxx.com/api/ha-sync/areas?token=' + token, json=areas)
     if r.status_code != 200:
         logger.warn(r.reason)
 
