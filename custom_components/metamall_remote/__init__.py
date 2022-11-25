@@ -101,7 +101,6 @@ def update_state(hass: HomeAssistant, event:Event):
         return
 
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
-    logger.warn(token)
     if token is None:
         return
 
