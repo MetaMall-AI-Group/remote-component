@@ -120,5 +120,5 @@ def filter_state(entity_id:str):
 def on_started(hass: HomeAssistant):
     sync_areas(hass)
     sync_devices(hass)
-    sync_state(hass)
+    sync_states(hass)
     logger.warn('on_started')
