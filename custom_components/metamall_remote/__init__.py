@@ -33,7 +33,7 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
     hass.async_add_executor_job(sync_states(hass))
     return True
 
-def sync_devices(hass: HomeAssistant):
+async def sync_devices(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
         logger.warn("Couldn't sync devices without token")
@@ -55,11 +55,11 @@ def sync_devices(hass: HomeAssistant):
         })
     
     # sync devices
-    r = requests.put('https://metamall.vatxx.com/api/ha-sync/devices?token=' + token, json=devices)
+    r = await await hass.async_add_executor_job(requests.put('https://metamall.vatxx.com/api/ha-sync/devices?token=' + token, json=devices))
     if r.status_code != 200:
         logger.warn(r.reason)
 
-def sync_states(hass: HomeAssistant):
+async def sync_states(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
         logger.warn("Couldn't sync states without token")
@@ -70,11 +70,11 @@ def sync_states(hass: HomeAssistant):
         if filter_state(state.entity_id) == True:
             states.append(state.as_dict())
 
-    r = requests.put('https://metamall.vatxx.com/api/ha-sync/states?token=' + token, json=states)
+    r = await hass.async_add_executor_job(requests.put('https://metamall.vatxx.com/api/ha-sync/states?token=' + token, json=states))
     if r.status_code != 200:
         logger.warn(r.reason)
 
-def sync_areas(hass: HomeAssistant):
+async def sync_areas(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
         logger.warn("Couldn't sync areas without token")
@@ -90,7 +90,7 @@ def sync_areas(hass: HomeAssistant):
             'picture': area.picture
         })
     
-    r = requests.put('https://metamall.vatxx.com/api/ha-sync/areas?token=' + token, json=areas)
+    r = await hass.async_add_executor_job(requests.put('https://metamall.vatxx.com/api/ha-sync/areas?token=' + token, json=areas))
     if r.status_code != 200:
         logger.warn(r.reason)
 
