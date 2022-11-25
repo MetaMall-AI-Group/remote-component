@@ -31,6 +31,7 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
     await sync_states(hass)
     await sync_devices(hass)
     await sync_areas(hass)
+    logger.warn("Finished setup entry")
     
     # hass.async_create_task(sync_devices(hass))
     # hass.async_create_task(sync_areas(hass))
