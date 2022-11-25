@@ -55,7 +55,7 @@ async def sync_devices(hass: HomeAssistant):
         })
     
     # sync devices
-    r = await await hass.async_add_executor_job(requests.put('https://metamall.vatxx.com/api/ha-sync/devices?token=' + token, json=devices))
+    r = await hass.async_add_executor_job(requests.put('https://metamall.vatxx.com/api/ha-sync/devices?token=' + token, json=devices))
     if r.status_code != 200:
         logger.warn(r.reason)
 
