@@ -29,9 +29,9 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
 
     hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
     
-    threading.Thread(target=sync_areas, args=(hass)).start()
-    threading.Thread(target=sync_devices, args=(hass)).start()
-    threading.Thread(target=sync_states, args=(hass)).start()
+    threading.Thread(target=sync_areas, hass=hass).start()
+    threading.Thread(target=sync_devices, hass=hass).start()
+    threading.Thread(target=sync_states, hass=hass).start()
     return True
 
 def sync_devices(hass: HomeAssistant):
