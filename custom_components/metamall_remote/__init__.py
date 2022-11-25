@@ -52,7 +52,8 @@ def sync_devices(hass: HomeAssistant):
             "sw_version": device.sw_version,
             "manufacturer": device.manufacturer,
             "model": device.model,
-            "name": device.name
+            "name": device.name,
+            "config_entries": list(device.config_entries)
         })
     
     # sync devices
