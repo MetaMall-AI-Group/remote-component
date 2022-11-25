@@ -8,7 +8,7 @@ import requests
 from homeassistant.helpers.start import async_at_start
 from homeassistant.const import EVENT_STATE_CHANGED
 from homeassistant.core import Event
-from .const import DOMAIN
+from config.custom_components.metamall_remote.const import DOMAIN
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigEntry):
@@ -36,6 +36,7 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
 async def sync_devices(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
+        logger.warn("Couldn't sync devices without token")
         return
     
     dr = async_get_dr(hass)
@@ -61,6 +62,7 @@ async def sync_devices(hass: HomeAssistant):
 async def sync_states(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
+        logger.warn("Couldn't sync states without token")
         return
     
     states = []
@@ -75,6 +77,7 @@ async def sync_states(hass: HomeAssistant):
 async def sync_areas(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
+        logger.warn("Couldn't sync areas without token")
         return
 
     ar = async_get_ar(hass)
