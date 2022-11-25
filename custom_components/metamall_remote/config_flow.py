@@ -1,6 +1,6 @@
 from homeassistant import config_entries
 import voluptuous as vol
-from config.custom_components.metamall_remote.const import DOMAIN
+from .const import DOMAIN
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
