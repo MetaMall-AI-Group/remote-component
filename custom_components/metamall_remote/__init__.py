@@ -28,9 +28,9 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
 
     hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
     
-    hass.async_create_task(sync_areas(hass))
-    hass.async_create_task(sync_devices(hass))
-    hass.async_create_task(sync_states(hass))
+    hass.async_add_executor_job(sync_areas(hass))
+    hass.async_add_executor_job(sync_devices(hass))
+    hass.async_add_executor_job(sync_states(hass))
     return True
 
 def sync_devices(hass: HomeAssistant):
