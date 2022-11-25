@@ -28,9 +28,9 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
 
     hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
 
-    await sync_states(hass)
-    await sync_devices(hass)
-    await sync_areas(hass)
+    sync_states(hass)
+    sync_devices(hass)
+    sync_areas(hass)
     logger.warn("Finished setup entry")
     
     # hass.async_create_task(sync_devices(hass))
@@ -38,7 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
     # hass.async_create_task(sync_states(hass))
     return True
 
-async def sync_devices(hass: HomeAssistant):
+def sync_devices(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
         logger.warn("Couldn't sync devices without token")
@@ -64,7 +64,7 @@ async def sync_devices(hass: HomeAssistant):
     if r.status_code != 200:
         logger.warn(r.reason)
 
-async def sync_states(hass: HomeAssistant):
+def sync_states(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
         logger.warn("Couldn't sync states without token")
@@ -79,7 +79,7 @@ async def sync_states(hass: HomeAssistant):
     if r.status_code != 200:
         logger.warn(r.reason)
 
-async def sync_areas(hass: HomeAssistant):
+def sync_areas(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
     if token is None:
         logger.warn("Couldn't sync areas without token")
