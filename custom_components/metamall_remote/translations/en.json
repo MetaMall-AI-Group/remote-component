@@ -1,0 +1,16 @@
+{
+    "config": {
+        "step": {
+            "user":{
+                "data": {
+                    "username": "Username",
+                    "password": "Password",
+                    "token": "Token"
+                }
+            }
+        },
+        "abort": {
+            "already_configured": "Already Configured!"
+        }
+    }
+}

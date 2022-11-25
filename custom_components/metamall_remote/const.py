@@ -1,0 +1,1 @@
+DOMAIN = "metamall_remote"
