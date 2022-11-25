@@ -8,7 +8,7 @@ import requests
 from homeassistant.helpers.start import async_at_start
 from homeassistant.const import EVENT_STATE_CHANGED
 from homeassistant.core import Event
-from config.custom_components.metamall_remote.const import DOMAIN
+from .const import DOMAIN
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigEntry):
@@ -28,9 +28,13 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
 
     hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
 
-    hass.async_create_task(sync_devices(hass))
-    hass.async_create_task(sync_areas(hass))
-    hass.async_create_task(sync_states(hass))
+    await sync_states(hass)
+    await sync_devices(hass)
+    await sync_areas(hass)
+    
+    # hass.async_create_task(sync_devices(hass))
+    # hass.async_create_task(sync_areas(hass))
+    # hass.async_create_task(sync_states(hass))
     return True
 
 async def sync_devices(hass: HomeAssistant):
