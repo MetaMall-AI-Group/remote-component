@@ -16,24 +16,12 @@ import time
 
 async def async_setup(hass: HomeAssistant, config: ConfigEntry):
     hass.data.setdefault(DOMAIN, {})
-    # async_track_state_change_event(hass, action=on_state_changed)
     async_at_start(hass, on_started)
-    
-    
     return True
 
 
 async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
     hass.data[DOMAIN]['config'] = config.data
-
-    def on_state_changed(event: Event):
-        update_state(hass, event)
-
-    hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
-    
-    # threading.Thread(target=sync_areas, args=(hass,)).start()
-    # threading.Thread(target=sync_devices, args=(hass,)).start()
-    # threading.Thread(target=sync_entities, args=(hass,)).start()
     return True
 
 def sync_devices(hass: HomeAssistant):
@@ -62,6 +50,21 @@ def sync_devices(hass: HomeAssistant):
     r = requests.put('https://metamall.vatxx.com/api/ha-sync/devices?token=' + token, json=devices)
     if r.status_code != 200:
         logger.warn(r.reason)
+
+def sync_states(hass: HomeAssistant):
+    token = hass.data[DOMAIN].get('config', {}).get('token', None)
+    if token is None:
+        logger.warn("Couldn't sync entities without token")
+        return
+    
+    states = []
+    for _, state in enumerate(hass.states.async_all()):
+        states.append(state.as_dict())
+
+    r = requests.put('https://metamall.vatxx.com/api/ha-sync/states?token=' + token, json=states)
+    if r.status_code != 200:
+        logger.warn(r.reason)
+    
 
 def sync_entities(hass: HomeAssistant):
     token = hass.data[DOMAIN].get('config', {}).get('token', None)
@@ -139,6 +142,7 @@ def sync_all(hass):
         sync_areas(hass)
         sync_devices(hass)
         sync_entities(hass)
+        sync_states(hass)
         time.sleep(3600)
 
 def filter_state(entity_id:str):
@@ -148,5 +152,10 @@ def filter_state(entity_id:str):
     
 def on_started(hass: HomeAssistant):
     threading.Thread(target=sync_all, args=(hass,)).start()
+
+    def on_state_changed(event: Event):
+        update_state(hass, event)
+
+    hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
     logger.warn('on_started')
 
