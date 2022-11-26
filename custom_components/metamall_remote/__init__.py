@@ -29,7 +29,7 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
     def on_state_changed(event: Event):
         update_state(hass, event)
 
-    threading.Thread(target=sync_all, args=(hass,)).start()
+    # threading.Thread(target=sync_all, args=(hass,)).start()
     hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
     
     return True
@@ -146,6 +146,6 @@ def filter_state(entity_id:str):
     return True
     
 def on_started(hass: HomeAssistant):
-    
     logger.warn('on_started')
+    threading.Thread(target=sync_all, args=(hass,)).start()
 
