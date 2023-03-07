@@ -3,14 +3,14 @@
         "step": {
             "user":{
                 "data": {
-                    "username": "Username",
-                    "password": "Password",
-                    "token": "Token"
+                    "code": "Registration Code",
+                    "hass_name": "Hass Name"
                 }
             }
         },
         "abort": {
-            "already_configured": "Already Configured!"
+            "already_configured": "Already Configured!",
+            "auth_failed": "Authentication Failed!"
         }
     }
 }
