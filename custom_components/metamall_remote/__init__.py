@@ -32,6 +32,9 @@ def sync_devices(hass: HomeAssistant):
     if token is None:
         logger.warn("Couldn't sync devices without token")
         return
+    
+    if domain is None:
+        return
 
     dr = async_get_dr(hass)
     devices = []
@@ -65,6 +68,9 @@ def sync_states(hass: HomeAssistant):
     if token is None:
         logger.warn("Couldn't sync entities without token")
         return
+    
+    if domain is None:
+        return
 
     states = []
     for _, state in enumerate(hass.states.async_all()):
@@ -82,6 +88,9 @@ def sync_entities(hass: HomeAssistant):
     domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
     if token is None:
         logger.warn("Couldn't sync entities without token")
+        return
+    
+    if domain is None:
         return
 
     entities = []
@@ -156,6 +165,9 @@ def update_state(hass: HomeAssistant, event: Event):
     if token is None:
         return
 
+    if domain is None:
+        return
+    
     r = requests.put(
          "https://" + domain + "/api/ha-sync/state?token=" + token,
         json=data.get("new_state").as_dict(),
@@ -176,7 +188,8 @@ def sync_all(hass):
 def heart_beat(hass):
     domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
     while True:
-        requests.get("https://" + domain + "/api/heart-beat")
+        if domain is not None:
+            requests.get("https://" + domain + "/api/heart-beat")
         time.sleep(300)
 
 
