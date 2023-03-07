@@ -9,19 +9,16 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason='already_configured')
 
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            res = requests.post('https://app.metamall.hk/api/register', json=data)
+            if res.status_code == 200:
+                return self.async_create_entry(title="configuration", data=res.json)
+            else:
+                return self.async_abort(reason='auth_failed')
 
         return self.async_show_form(
             step_id='user',
             data_schema=vol.Schema({
-                # vol.Required('username', 'Username'): str,
-                # vol.Required('password'): str,
-                vol.Required('token'): str
+                vol.Required('code', 'Registration Code'): str
+                vol.Required('hass_name', 'Box Name'): str
             })
         )
-
-
-    # async def async_login(self, data):
-    #     res = requests.post('https://metamall.vatxx.com/api/login', json=data)
-    #     if res.status_code == 200:
-    #         pass

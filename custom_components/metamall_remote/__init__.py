@@ -28,6 +28,7 @@ async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry):
 
 def sync_devices(hass: HomeAssistant):
     token = hass.data[DOMAIN].get("config", {}).get("token", None)
+    domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
     if token is None:
         logger.warn("Couldn't sync devices without token")
         return
@@ -52,7 +53,7 @@ def sync_devices(hass: HomeAssistant):
 
     # sync devices
     r = requests.put(
-        "https://metamall.vatxx.com/api/ha-sync/devices?token=" + token, json=devices
+        "https://" + domain + "/api/ha-sync/devices?token=" + token, json=devices
     )
     if r.status_code != 200:
         logger.warn(r.reason)
@@ -60,6 +61,7 @@ def sync_devices(hass: HomeAssistant):
 
 def sync_states(hass: HomeAssistant):
     token = hass.data[DOMAIN].get("config", {}).get("token", None)
+    domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
     if token is None:
         logger.warn("Couldn't sync entities without token")
         return
@@ -69,7 +71,7 @@ def sync_states(hass: HomeAssistant):
         states.append(state.as_dict())
 
     r = requests.put(
-        "https://metamall.vatxx.com/api/ha-sync/states?token=" + token, json=states
+         "https://" + domain + "/api/ha-sync/states?token=" + token, json=states
     )
     if r.status_code != 200:
         logger.warn(r.reason)
@@ -77,6 +79,7 @@ def sync_states(hass: HomeAssistant):
 
 def sync_entities(hass: HomeAssistant):
     token = hass.data[DOMAIN].get("config", {}).get("token", None)
+    domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
     if token is None:
         logger.warn("Couldn't sync entities without token")
         return
@@ -108,35 +111,35 @@ def sync_entities(hass: HomeAssistant):
         )
 
     r = requests.put(
-        "https://metamall.vatxx.com/api/ha-sync/entities?token=" + token, json=entities
+        "https://" + domain + "/api/ha-sync/entities?token=" + token, json=entities
     )
     if r.status_code != 200:
         logger.warn(r.reason)
 
 
-def sync_areas(hass: HomeAssistant):
-    token = hass.data[DOMAIN].get("config", {}).get("token", None)
-    if token is None:
-        logger.warn("Couldn't sync areas without token")
-        return
+# def sync_areas(hass: HomeAssistant):
+#     token = hass.data[DOMAIN].get("config", {}).get("token", None)
+#     if token is None:
+#         logger.warn("Couldn't sync areas without token")
+#         return
 
-    ar = async_get_ar(hass)
-    areas = list()
-    for area in ar.async_list_areas():
-        areas.append(
-            {
-                "id": area.id,
-                "name": area.name,
-                "normalized_name": area.normalized_name,
-                "picture": area.picture,
-            }
-        )
+#     ar = async_get_ar(hass)
+#     areas = list()
+#     for area in ar.async_list_areas():
+#         areas.append(
+#             {
+#                 "id": area.id,
+#                 "name": area.name,
+#                 "normalized_name": area.normalized_name,
+#                 "picture": area.picture,
+#             }
+#         )
 
-    r = requests.put(
-        "https://metamall.vatxx.com/api/ha-sync/areas?token=" + token, json=areas
-    )
-    if r.status_code != 200:
-        logger.warn(r.reason)
+#     r = requests.put(
+#         "https://metamall.vatxx.com/api/ha-sync/areas?token=" + token, json=areas
+#     )
+#     if r.status_code != 200:
+#         logger.warn(r.reason)
 
 
 def update_state(hass: HomeAssistant, event: Event):
@@ -149,11 +152,12 @@ def update_state(hass: HomeAssistant, event: Event):
         return
 
     token = hass.data[DOMAIN].get("config", {}).get("token", None)
+    domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
     if token is None:
         return
 
     r = requests.put(
-        "https://metamall.vatxx.com/api/ha-sync/state?token=" + token,
+         "https://" + domain + "/api/ha-sync/state?token=" + token,
         json=data.get("new_state").as_dict(),
     )
     if r.status_code != 200:
@@ -163,11 +167,17 @@ def update_state(hass: HomeAssistant, event: Event):
 def sync_all(hass):
     logger.warn("begin to sync all devices, 3600 seconds once")
     while True:
-        sync_areas(hass)
+        # sync_areas(hass)
         sync_devices(hass)
         sync_entities(hass)
         sync_states(hass)
         time.sleep(3600)
+        
+def heart_beat(hass):
+    domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
+    while True:
+        requests.get("https://" + domain + "/api/heart-beat")
+        time.sleep(300)
 
 
 def filter_state(entity_id: str):
@@ -179,6 +189,7 @@ def filter_state(entity_id: str):
 def on_started(hass: HomeAssistant):
     logger.warn("on_started")
     threading.Thread(target=sync_all, args=(hass,)).start()
+    threading.Thread(target=heart_beat, args=(hass,)).start()
 
     def on_state_changed(event: Event):
         update_state(hass, event)
