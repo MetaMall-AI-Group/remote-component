@@ -13,6 +13,7 @@ from homeassistant.core import Event
 from .const import DOMAIN
 import threading
 import time
+from datetime import timedelta
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigEntry):
@@ -32,7 +33,7 @@ def sync_devices(hass: HomeAssistant):
     if token is None:
         logger.warn("Couldn't sync devices without token")
         return
-    
+
     if domain is None:
         return
 
@@ -56,7 +57,9 @@ def sync_devices(hass: HomeAssistant):
 
     # sync devices
     r = requests.put(
-        "https://" + domain + "/api/ha-sync/devices?token=" + token, json=devices
+        "https://" + domain + "/api/ha-sync/devices?token=" + token,
+        json=devices,
+        verify=False,
     )
     if r.status_code != 200:
         logger.warn(r.reason)
@@ -68,7 +71,7 @@ def sync_states(hass: HomeAssistant):
     if token is None:
         logger.warn("Couldn't sync entities without token")
         return
-    
+
     if domain is None:
         return
 
@@ -77,7 +80,9 @@ def sync_states(hass: HomeAssistant):
         states.append(state.as_dict())
 
     r = requests.put(
-         "https://" + domain + "/api/ha-sync/states?token=" + token, json=states
+        "https://" + domain + "/api/ha-sync/states?token=" + token,
+        json=states,
+        verify=False,
     )
     if r.status_code != 200:
         logger.warn(r.reason)
@@ -89,7 +94,7 @@ def sync_entities(hass: HomeAssistant):
     if token is None:
         logger.warn("Couldn't sync entities without token")
         return
-    
+
     if domain is None:
         return
 
@@ -120,7 +125,9 @@ def sync_entities(hass: HomeAssistant):
         )
 
     r = requests.put(
-        "https://" + domain + "/api/ha-sync/entities?token=" + token, json=entities
+        "https://" + domain + "/api/ha-sync/entities?token=" + token,
+        json=entities,
+        verify=False,
     )
     if r.status_code != 200:
         logger.warn(r.reason)
@@ -167,10 +174,11 @@ def update_state(hass: HomeAssistant, event: Event):
 
     if domain is None:
         return
-    
+
     r = requests.put(
-         "https://" + domain + "/api/ha-sync/state?token=" + token,
+        "https://" + domain + "/api/ha-sync/state?token=" + token,
         json=data.get("new_state").as_dict(),
+        verify=False,
     )
     if r.status_code != 200:
         logger.warn(r.reason)
@@ -184,12 +192,17 @@ def sync_all(hass):
         sync_entities(hass)
         sync_states(hass)
         time.sleep(3600)
-        
+
+
 def heart_beat(hass):
     domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
+    token = hass.data[DOMAIN].get("config", {}).get("token", None)
     while True:
         if domain is not None:
-            requests.get("https://" + domain + "/api/heart-beat")
+            requests.get(
+                "https://" + domain + "/api/heart-beat?token=" + token,
+                verify=False,
+            )
         time.sleep(300)
 
 
@@ -208,4 +221,4 @@ def on_started(hass: HomeAssistant):
         update_state(hass, event)
 
     hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
-    logger.info('started')
+    # threading.Thread(target=test_token, args=(hass,)).start()

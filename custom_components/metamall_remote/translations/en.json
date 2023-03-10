@@ -10,7 +10,8 @@
         },
         "abort": {
             "already_configured": "Already Configured!",
-            "auth_failed": "Authentication Failed!"
+            "auth_failed": "Authentication Failed!",
+            "generate_token_failed": "Generate Access Token Failed"
         }
     }
 }
