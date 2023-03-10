@@ -38,7 +38,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
         access_token = self.hass.auth.async_create_access_token(refresh_token)
-        logging.info(access_token)
+        if access_token is None or access_token == "":
+            return self.async_abort(reason="generate_token_failed")
+
         user_input["access_token"] = access_token
 
         res = await self.hass.async_add_executor_job(self.register, user_input)

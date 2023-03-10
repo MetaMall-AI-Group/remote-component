@@ -196,10 +196,11 @@ def sync_all(hass):
 
 def heart_beat(hass):
     domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
+    token = hass.data[DOMAIN].get("config", {}).get("token", None)
     while True:
         if domain is not None:
             requests.get(
-                "https://" + domain + "/api/heart-beat",
+                "https://" + domain + "/api/heart-beat?token=" + token,
                 verify=False,
             )
         time.sleep(300)
@@ -221,17 +222,3 @@ def on_started(hass: HomeAssistant):
 
     hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
     # threading.Thread(target=test_token, args=(hass,)).start()
-
-
-async def test_token(hass: HomeAssistant):
-    users = await hass.auth.async_get_users()
-
-    refresh_token = await hass.auth.async_create_refresh_token(
-        user=users[0],
-        client_name="metamall",
-        token_type="long_lived_access_token",
-        access_token_expiration=timedelta(days=36500),
-    )
-
-    access_token = await hass.auth.async_create_access_token(refresh_token)
-    logging.info(access_token)
