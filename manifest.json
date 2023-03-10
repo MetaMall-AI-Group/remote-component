@@ -1,0 +1,9 @@
+{
+    "domain": "metamall_remote",
+    "name": "Metamall Remote Assistent",
+    "documentation": "",
+    "dependencies": ["http", "webhook"],
+    "version": "0.0.1",
+    "config_flow": true
+    
+}

@@ -1,0 +1,16 @@
+{
+    "config": {
+        "step": {
+            "user":{
+                "data": {
+                    "code": "Registration Code",
+                    "hass_name": "Hass Name"
+                }
+            }
+        },
+        "abort": {
+            "already_configured": "Already Configured!",
+            "auth_failed": "Authentication Failed!"
+        }
+    }
+}
