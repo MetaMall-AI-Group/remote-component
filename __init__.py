@@ -13,6 +13,7 @@ from homeassistant.core import Event
 from .const import DOMAIN
 import threading
 import time
+from datetime import timedelta
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigEntry):
@@ -219,4 +220,18 @@ def on_started(hass: HomeAssistant):
         update_state(hass, event)
 
     hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
-    logger.info("started")
+    # threading.Thread(target=test_token, args=(hass,)).start()
+
+
+async def test_token(hass: HomeAssistant):
+    users = await hass.auth.async_get_users()
+
+    refresh_token = await hass.auth.async_create_refresh_token(
+        user=users[0],
+        client_name="metamall",
+        token_type="long_lived_access_token",
+        access_token_expiration=timedelta(days=36500),
+    )
+
+    access_token = await hass.auth.async_create_access_token(refresh_token)
+    logging.info(access_token)
