@@ -43,7 +43,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         res = await self.hass.async_add_executor_job(self.register, user_input)
         if res.status_code == 200:
-            return self.async_create_entry(title="", data=res.json())
+            return self.async_create_entry(title="Remote", data=res.json())
         else:
             return self.async_abort(reason="auth_failed")
 
