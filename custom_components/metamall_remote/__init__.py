@@ -14,6 +14,8 @@ from .const import DOMAIN
 import threading
 import time
 from datetime import timedelta
+import pysher
+import json
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigEntry):
@@ -222,3 +224,32 @@ def on_started(hass: HomeAssistant):
 
     hass.bus.async_listen(EVENT_STATE_CHANGED, on_state_changed)
     # threading.Thread(target=test_token, args=(hass,)).start()
+    handle_action(hass)
+
+
+def handle_action(hass):
+    hassID = hass.data[DOMAIN].get("config", {}).get("id", None)
+    if hassID is None:
+        return
+    pusherAppKey = (
+        hass.data[DOMAIN]
+        .get("config", {})
+        .get("pusher", {})
+        .get("app_key", "f3838bc732eed964d75b")
+    )
+    pusher = pysher.Pusher(pusherAppKey, cluster="ap1")
+
+    # logger.info("subscribe " + hassID)
+
+    def action(data):
+        # print("processing data:", data)
+        jsonData = json.loads(data)
+        hass.services.call(**jsonData)
+
+    def connect_handler(data):
+        # logger.info(data)
+        channel = pusher.subscribe(hassID)
+        channel.bind("action", action)
+
+    pusher.connection.bind("pusher:connection_established", connect_handler)
+    pusher.connect()
