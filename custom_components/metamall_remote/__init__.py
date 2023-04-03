@@ -161,7 +161,7 @@ def sync_areas(hass: HomeAssistant):
         )
 
     r = requests.put(
-         "https://" + domain + "/api/ha-sync/areas?token=" + token, json=areas
+         "https://" + domain + "/api/ha-sync/areas?token=" + token, json=areas, verify=False,
     )
     if r.status_code != 200:
         logger.warn(r.reason)
