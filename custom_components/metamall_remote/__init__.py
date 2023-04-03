@@ -196,7 +196,7 @@ def update_state(hass: HomeAssistant, event: Event):
 def sync_all(hass):
     logger.warn("begin to sync all devices, 3600 seconds once")
     while True:
-        # sync_areas(hass)
+        sync_areas(hass)
         sync_devices(hass)
         sync_entities(hass)
         sync_states(hass)
