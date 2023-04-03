@@ -44,6 +44,8 @@ def sync_devices(hass: HomeAssistant):
     devices = []
 
     for device in dr.devices.values():
+        if device.area_id is None or device.area_id == "":
+            continue
         devices.append(
             {
                 "id": device.id,
@@ -139,29 +141,30 @@ def sync_entities(hass: HomeAssistant):
         logger.warn(r.reason)
 
 
-# def sync_areas(hass: HomeAssistant):
-#     token = hass.data[DOMAIN].get("config", {}).get("token", None)
-#     if token is None:
-#         logger.warn("Couldn't sync areas without token")
-#         return
+def sync_areas(hass: HomeAssistant):
+    token = hass.data[DOMAIN].get("config", {}).get("token", None)
+    domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
+    if token is None:
+        logger.warn("Couldn't sync areas without token")
+        return
 
-#     ar = async_get_ar(hass)
-#     areas = list()
-#     for area in ar.async_list_areas():
-#         areas.append(
-#             {
-#                 "id": area.id,
-#                 "name": area.name,
-#                 "normalized_name": area.normalized_name,
-#                 "picture": area.picture,
-#             }
-#         )
+    ar = async_get_ar(hass)
+    areas = list()
+    for area in ar.async_list_areas():
+        areas.append(
+            {
+                "id": area.id,
+                "name": area.name,
+                "normalized_name": area.normalized_name,
+                "picture": area.picture,
+            }
+        )
 
-#     r = requests.put(
-#         "https://metamall.vatxx.com/api/ha-sync/areas?token=" + token, json=areas
-#     )
-#     if r.status_code != 200:
-#         logger.warn(r.reason)
+    r = requests.put(
+         "https://" + domain + "/api/ha-sync/areas?token=" + token, json=areas
+    )
+    if r.status_code != 200:
+        logger.warn(r.reason)
 
 
 def update_state(hass: HomeAssistant, event: Event):
