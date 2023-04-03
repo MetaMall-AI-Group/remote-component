@@ -17,6 +17,7 @@ from datetime import timedelta
 import pysher
 import json
 
+available_entities = []
 
 async def async_setup(hass: HomeAssistant, config: ConfigEntry):
     hass.data.setdefault(DOMAIN, {})
@@ -104,6 +105,9 @@ def sync_entities(hass: HomeAssistant):
     er = async_get_entities(hass)
     # logger.warn(json.dumps(async_get_entities(hass).entities))
     for _, entry in er.entities.items():
+        if entry.area_id == "" or entry.area_id is None:
+            continue
+        available_entities.append(entry.entity_id)
         entities.append(
             {
                 "entity_id": entry.entity_id,
@@ -166,7 +170,7 @@ def update_state(hass: HomeAssistant, event: Event):
     # logger.warn(data)
     # logger.warn(event)
     entity_id: str = data["entity_id"]
-    if filter_state(entity_id) != True:
+    if entity_id in available_entities != True:
         return
 
     token = hass.data[DOMAIN].get("config", {}).get("token", None)
@@ -208,8 +212,11 @@ def heart_beat(hass):
         time.sleep(300)
 
 
-def filter_state(entity_id: str):
-    if entity_id.split(".", 2)[0] in ["update", "person", "persistent_notification"]:
+def filter_state(entity):
+    # if entity_id.split(".", 2)[0] in ["update", "person", "persistent_notification"]:
+    #     return False
+    # return True
+    if entity['area_id'] is None or entity['area_id'] == "":
         return False
     return True
 
