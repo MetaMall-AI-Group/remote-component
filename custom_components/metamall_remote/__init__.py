@@ -44,8 +44,8 @@ def sync_devices(hass: HomeAssistant):
     devices = []
 
     for device in dr.devices.values():
-        # if device.area_id is None or device.area_id == "":
-        #     continue
+        if device.area_id is None or device.area_id == "":
+            continue
         devices.append(
             {
                 "id": device.id,
@@ -82,6 +82,7 @@ def sync_states(hass: HomeAssistant):
 
     states = []
     for _, state in enumerate(hass.states.async_all()):
+        
         states.append(state.as_dict())
 
     r = requests.put(
@@ -104,13 +105,15 @@ def sync_entities(hass: HomeAssistant):
         return
 
     entities = []
-    # entities_can_sync = []
+    dr = async_get_dr(hass)
     er = async_get_entities(hass)
     # logger.warn(json.dumps(async_get_entities(hass).entities))
     for _, entry in er.entities.items():
-        # if entry.area_id == "" or entry.area_id is None:
-        #     continue
-        # entities_can_sync.append(entry.entity_id)
+        if entry.area_id == "" or entry.area_id is None:
+            divice = dr.async_get(entry.device_id)
+            if device.area_id is None or device.area_id == "":
+                continue
+        entities_can_sync.append(entry.entity_id)
         entities.append(
             {
                 "entity_id": entry.entity_id,
@@ -171,9 +174,9 @@ def sync_areas(hass: HomeAssistant):
 def update_state(hass: HomeAssistant, event: Event):
     # logger.warn('state changed started')
     data = event.data
-    # entity_id: str = data["entity_id"]
-    # if entity_id in entities_can_sync != True:
-    #     return
+    entity_id: str = data["entity_id"]
+    if entity_id in entities_can_sync != True:
+        return
 
     token = hass.data[DOMAIN].get("config", {}).get("token", None)
     domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
