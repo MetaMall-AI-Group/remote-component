@@ -111,7 +111,7 @@ def sync_entities(hass: HomeAssistant):
     for _, entry in er.entities.items():
         if entry.area_id == "" or entry.area_id is None:
             device = dr.async_get(entry.device_id)
-            if device.area_id is None or device.area_id == "":
+            if device is None or device.area_id is None or device.area_id == "":
                 continue
         entities_can_sync.append(entry.entity_id)
         entities.append(
