@@ -17,8 +17,6 @@ from datetime import timedelta
 import pysher
 import json
 
-available_entities = []
-
 async def async_setup(hass: HomeAssistant, config: ConfigEntry):
     hass.data.setdefault(DOMAIN, {})
     async_at_start(hass, on_started)
@@ -104,12 +102,13 @@ def sync_entities(hass: HomeAssistant):
         return
 
     entities = []
+    entities_can_sync = []
     er = async_get_entities(hass)
     # logger.warn(json.dumps(async_get_entities(hass).entities))
     for _, entry in er.entities.items():
         if entry.area_id == "" or entry.area_id is None:
             continue
-        available_entities.append(entry.entity_id)
+        entities_can_sync.append(entry.entity_id)
         entities.append(
             {
                 "entity_id": entry.entity_id,
@@ -139,6 +138,8 @@ def sync_entities(hass: HomeAssistant):
     )
     if r.status_code != 200:
         logger.warn(r.reason)
+        
+    hass.data[DOMAIN].set('entities_can_sync', entities_can_sync)
 
 
 def sync_areas(hass: HomeAssistant):
@@ -173,7 +174,8 @@ def update_state(hass: HomeAssistant, event: Event):
     # logger.warn(data)
     # logger.warn(event)
     entity_id: str = data["entity_id"]
-    if entity_id in available_entities != True:
+    entities_can_sync = hass.data[DOMAIN].set('entities_can_sync', [])
+    if entity_id in entities_can_sync != True:
         return
 
     token = hass.data[DOMAIN].get("config", {}).get("token", None)
@@ -200,7 +202,7 @@ def sync_all(hass):
         sync_devices(hass)
         sync_entities(hass)
         sync_states(hass)
-        time.sleep(3600)
+        time.sleep(300)
 
 
 def heart_beat(hass):
