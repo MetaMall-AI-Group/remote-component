@@ -44,8 +44,8 @@ def sync_devices(hass: HomeAssistant):
     devices = []
 
     for device in dr.devices.values():
-        if device.area_id is None or device.area_id == "":
-            continue
+        # if device.area_id is None or device.area_id == "":
+        #     continue
         devices.append(
             {
                 "id": device.id,
@@ -108,9 +108,9 @@ def sync_entities(hass: HomeAssistant):
     er = async_get_entities(hass)
     # logger.warn(json.dumps(async_get_entities(hass).entities))
     for _, entry in er.entities.items():
-        if entry.area_id == "" or entry.area_id is None:
-            continue
-        entities_can_sync.append(entry.entity_id)
+        # if entry.area_id == "" or entry.area_id is None:
+        #     continue
+        # entities_can_sync.append(entry.entity_id)
         entities.append(
             {
                 "entity_id": entry.entity_id,
@@ -141,10 +141,6 @@ def sync_entities(hass: HomeAssistant):
     if r.status_code != 200:
         logger.warn(r.reason)
         
-    logger.warn('entities_can_sync after sync states')
-    logger.warn(entities_can_sync)
-    # hass.data[DOMAIN].set('entities_can_sync', entities_can_sync)
-
 
 def sync_areas(hass: HomeAssistant):
     token = hass.data[DOMAIN].get("config", {}).get("token", None)
@@ -175,14 +171,9 @@ def sync_areas(hass: HomeAssistant):
 def update_state(hass: HomeAssistant, event: Event):
     # logger.warn('state changed started')
     data = event.data
-    # logger.warn(data)
-    # logger.warn(event)
-    entity_id: str = data["entity_id"]
-    # entities_can_sync = hass.data[DOMAIN].get('entities_can_sync', [])
-    
-    logger.warn(entities_can_sync)
-    if entity_id in entities_can_sync != True:
-        return
+    # entity_id: str = data["entity_id"]
+    # if entity_id in entities_can_sync != True:
+    #     return
 
     token = hass.data[DOMAIN].get("config", {}).get("token", None)
     domain = hass.data[DOMAIN].get("config", {}).get("domain", None)
@@ -221,15 +212,6 @@ def heart_beat(hass):
                 verify=False,
             )
         time.sleep(300)
-
-
-def filter_state(entity):
-    # if entity_id.split(".", 2)[0] in ["update", "person", "persistent_notification"]:
-    #     return False
-    # return True
-    if entity['area_id'] is None or entity['area_id'] == "":
-        return False
-    return True
 
 
 def on_started(hass: HomeAssistant):
