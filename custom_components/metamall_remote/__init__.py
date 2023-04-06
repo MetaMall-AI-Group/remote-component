@@ -140,7 +140,9 @@ def sync_entities(hass: HomeAssistant):
     )
     if r.status_code != 200:
         logger.warn(r.reason)
-    
+        
+    logger.warn('entities_can_sync after sync states')
+    logger.warn(entities_can_sync)
     # hass.data[DOMAIN].set('entities_can_sync', entities_can_sync)
 
 
@@ -178,7 +180,7 @@ def update_state(hass: HomeAssistant, event: Event):
     entity_id: str = data["entity_id"]
     # entities_can_sync = hass.data[DOMAIN].get('entities_can_sync', [])
     logger.log('entities_can_sync:')
-    logger.log(entities_can_sync)
+    logger.warn(entities_can_sync)
     if entity_id in entities_can_sync != True:
         return
 
