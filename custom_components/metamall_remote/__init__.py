@@ -17,6 +17,8 @@ from datetime import timedelta
 import pysher
 import json
 
+entities_can_sync = []
+
 async def async_setup(hass: HomeAssistant, config: ConfigEntry):
     hass.data.setdefault(DOMAIN, {})
     async_at_start(hass, on_started)
@@ -102,7 +104,7 @@ def sync_entities(hass: HomeAssistant):
         return
 
     entities = []
-    entities_can_sync = []
+    # entities_can_sync = []
     er = async_get_entities(hass)
     # logger.warn(json.dumps(async_get_entities(hass).entities))
     for _, entry in er.entities.items():
@@ -138,8 +140,8 @@ def sync_entities(hass: HomeAssistant):
     )
     if r.status_code != 200:
         logger.warn(r.reason)
-        
-    hass.data[DOMAIN].set('entities_can_sync', entities_can_sync)
+    
+    # hass.data[DOMAIN].set('entities_can_sync', entities_can_sync)
 
 
 def sync_areas(hass: HomeAssistant):
@@ -174,7 +176,9 @@ def update_state(hass: HomeAssistant, event: Event):
     # logger.warn(data)
     # logger.warn(event)
     entity_id: str = data["entity_id"]
-    entities_can_sync = hass.data[DOMAIN].set('entities_can_sync', [])
+    # entities_can_sync = hass.data[DOMAIN].get('entities_can_sync', [])
+    logger.log('entities_can_sync:')
+    logger.log(entities_can_sync)
     if entity_id in entities_can_sync != True:
         return
 
