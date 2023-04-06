@@ -107,6 +107,7 @@ def sync_entities(hass: HomeAssistant):
     entities = []
     dr = async_get_dr(hass)
     er = async_get_entities(hass)
+    entities_can_sync = []
     # logger.warn(json.dumps(async_get_entities(hass).entities))
     for _, entry in er.entities.items():
         if entry.area_id == "" or entry.area_id is None:
@@ -175,6 +176,9 @@ def update_state(hass: HomeAssistant, event: Event):
     # logger.warn('state changed started')
     data = event.data
     entity_id: str = data["entity_id"]
+    
+    logger.warn(entities_can_sync)
+    
     if entity_id in entities_can_sync != True:
         return
 
